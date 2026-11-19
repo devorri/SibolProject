@@ -5,7 +5,7 @@ import { lastDays, shortDate } from '../lib/api'
 import { DropIcon, LeafIcon, SproutIcon, SunIcon, ThermoIcon, ToolsIcon, WarnIcon, WeatherIcon, weatherLabel } from './icons'
 
 export const Info = ({ tip }: { tip: string }) => (
-  <span className="info" title={tip}>
+  <span className="info" data-tip={tip} tabIndex={0} role="note" aria-label={tip}>
     i
   </span>
 )

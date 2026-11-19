@@ -168,12 +168,12 @@ export function DataPage() {
           <tbody>
             {rows.map((r) => (
               <tr key={`${r.ts}-${r.device_id}`}>
-                <td>{fmtTime(r.ts)}</td>
-                <td>{r.device_id}</td>
-                <td>{r.soil_moisture != null ? `${r.soil_moisture}%` : '—'}</td>
-                <td>{r.soil_raw ?? '—'}</td>
-                <td>{r.temperature != null ? `${r.temperature}°C` : '—'}</td>
-                <td>{r.humidity != null ? `${r.humidity}%` : '—'}</td>
+                <td data-label="Time">{fmtTime(r.ts)}</td>
+                <td data-label="Device">{r.device_id}</td>
+                <td data-label="Soil Moisture">{r.soil_moisture != null ? `${r.soil_moisture}%` : '—'}</td>
+                <td data-label="Raw">{r.soil_raw ?? '—'}</td>
+                <td data-label="Temp">{r.temperature != null ? `${r.temperature}°C` : '—'}</td>
+                <td data-label="Humidity">{r.humidity != null ? `${r.humidity}%` : '—'}</td>
               </tr>
             ))}
             {!rows.length && (
