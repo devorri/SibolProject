@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { AiAdvice } from '../hooks/useAiAdvice'
 import type { DailyPoint, ForecastDay, Level } from '../types'
 import { LEVEL_COLOR, STAGES, type Stage } from '../lib/crop'
 import { lastDays, shortDate } from '../lib/api'
@@ -335,7 +336,9 @@ export function CropInfoCard({
 }
 
 /* ---------- Recommended actions ---------- */
-export function ActionsCard({ actions }: { actions: string[] }) {
+export function ActionsCard({ actions, ai }: { actions: string[]; ai?: AiAdvice }) {
+  const useAi = Boolean(ai?.enabled && ai.actions?.length)
+  const list = useAi ? ai!.actions! : actions
   return (
     <Card className="actions-card">
       <h3 className="card-title">
@@ -343,12 +346,29 @@ export function ActionsCard({ actions }: { actions: string[] }) {
           <ToolsIcon size={14} color="#fff" />
         </span>
         Recommended Actions
+        {useAi && <span className="ai-tag">✦ Gemini</span>}
       </h3>
       <ol>
-        {actions.map((a) => (
+        {list.map((a) => (
           <li key={a}>{a}</li>
         ))}
       </ol>
+      {ai?.enabled && (
+        <div className="ai-row">
+          <span className="muted tiny">
+            {ai.loading
+              ? 'Gemini is analyzing your field…'
+              : ai.error
+                ? `AI unavailable (${ai.error}) — showing built-in tips.`
+                : ai.at
+                  ? `AI advice from ${new Date(ai.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`
+                  : 'Built-in tips'}
+          </span>
+          <button className="btn ghost small" onClick={ai.generate} disabled={ai.loading}>
+            {ai.loading ? '…' : '✦ Refresh'}
+          </button>
+        </div>
+      )}
       <div className="cta">Early action can help reduce crop loss!</div>
     </Card>
   )

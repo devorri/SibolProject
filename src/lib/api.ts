@@ -1,13 +1,21 @@
-import type { DailyPoint, ForecastDay, Reading } from '../types'
-import { sbSelect } from './supabase'
+import type { DailyPoint, DeviceControls, ForecastDay, PumpMode, Reading } from '../types'
+import { sbSelect, sbUpdate, SUPABASE_URL } from './supabase'
+
+/** Must match DEVICE_ID in the ESP32-CAM sketch. */
+export const DEVICE_ID = 'esp32'
+
+/** The ESP32-CAM overwrites this file while someone is watching. */
+export const FRAME_URL = `${SUPABASE_URL}/storage/v1/object/public/files/cam/${DEVICE_ID}/latest.jpg`
 
 interface Row {
   created_at: string
   device_id: string
   soil_moisture: number | null
   soil_raw: number | null
+  soil_voltage: number | null
   temperature: number | null
   humidity: number | null
+  pump_on: boolean | null
 }
 
 const toReading = (r: Row): Reading => ({
@@ -15,11 +23,13 @@ const toReading = (r: Row): Reading => ({
   device_id: r.device_id,
   soil_moisture: r.soil_moisture,
   soil_raw: r.soil_raw,
+  soil_voltage: r.soil_voltage,
   temperature: r.temperature,
   humidity: r.humidity,
+  pump_on: r.pump_on,
 })
 
-const COLS = 'created_at,device_id,soil_moisture,soil_raw,temperature,humidity'
+const COLS = 'created_at,device_id,soil_moisture,soil_raw,soil_voltage,temperature,humidity,pump_on'
 
 export const api = {
   latest: async (): Promise<Reading | null> => {
@@ -39,6 +49,22 @@ export const api = {
     })
     return { readings: data.map(toReading), total: total ?? data.length }
   },
+
+  controls: async (): Promise<DeviceControls | null> => {
+    const { data } = await sbSelect<DeviceControls[]>(
+      `device_controls?select=device_id,pump_mode,pump_command,pump_state,last_seen&device_id=eq.${DEVICE_ID}`,
+    )
+    return data[0] ?? null
+  },
+
+  setPump: (mode: PumpMode, command: boolean) =>
+    sbUpdate(`device_controls?device_id=eq.${DEVICE_ID}`, { pump_mode: mode, pump_command: command }),
+
+  /** Ask the ESP32-CAM to keep uploading camera frames for the next `seconds`. */
+  keepStreamAlive: (seconds = 30) =>
+    sbUpdate(`device_controls?device_id=eq.${DEVICE_ID}`, {
+      stream_until: new Date(Date.now() + seconds * 1000).toISOString(),
+    }),
 }
 
 // Free weather forecast, no API key needed — https://open-meteo.com

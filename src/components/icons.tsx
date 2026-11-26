@@ -105,6 +105,41 @@ export const RefreshIcon = ({ size, ...p }: P) => (
   </svg>
 )
 
+export const ChatIcon = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" />
+    <path d="M8 10h8M8 13h5" />
+  </svg>
+)
+export const MicIcon = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <rect x="9" y="3" width="6" height="11" rx="3" />
+    <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+  </svg>
+)
+export const SendIcon = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <path d="M4 12 20 4l-6 16-3-7z" />
+  </svg>
+)
+export const StopIcon = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p} fill="currentColor" stroke="none">
+    <rect x="6" y="6" width="12" height="12" rx="2" />
+  </svg>
+)
+export const SpeakerIcon = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <path d="M4 9h4l5-4v14l-5-4H4z" />
+    <path d="M17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11" />
+  </svg>
+)
+export const CameraIcon = ({ size, ...p }: P) => (
+  <svg {...base(size)} {...p}>
+    <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+    <circle cx="12" cy="13.5" r="3.5" />
+  </svg>
+)
+
 /** Weather icon from Open-Meteo WMO code */
 export function WeatherIcon({ code, size = 28 }: { code: number; size?: number }) {
   const sun = <circle cx="10" cy="10" r="5" fill="#f5b81b" />

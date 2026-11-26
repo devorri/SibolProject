@@ -3,8 +3,10 @@ export interface Reading {
   device_id?: string
   soil_moisture: number | null
   soil_raw?: number | null
+  soil_voltage?: number | null
   temperature?: number | null
   humidity?: number | null
+  pump_on?: boolean | null
 }
 
 export interface DailyPoint {
@@ -23,6 +25,16 @@ export interface ForecastDay {
   rainProb: number | null
 }
 
+export type PumpMode = 'auto' | 'manual'
+
+export interface DeviceControls {
+  device_id: string
+  pump_mode: PumpMode
+  pump_command: boolean
+  pump_state: boolean
+  last_seen: string | null
+}
+
 export interface Settings {
   locationName: string
   lat: number
@@ -36,4 +48,4 @@ export interface Settings {
 }
 
 export type Level = 'Low' | 'Moderate' | 'High'
-export type Page = 'home' | 'dashboard' | 'maps' | 'data' | 'settings'
+export type Page = 'home' | 'dashboard' | 'chat' | 'maps' | 'data' | 'settings'

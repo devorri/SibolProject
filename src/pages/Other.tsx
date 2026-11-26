@@ -1,11 +1,15 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { FieldMap } from '../components/FieldMap'
+import { PumpControls } from '../components/CameraFeed'
 import { Card, ForecastCard, MoistureTrend, RiskCard, StageCard } from '../components/Widgets'
-import { DropIcon, RefreshIcon, ThermoIcon } from '../components/icons'
+import { DropIcon, PinIcon, RefreshIcon, ThermoIcon } from '../components/icons'
 import { useCropModel } from '../hooks/useCropModel'
+import { useDevice } from '../hooks/useDevice'
+import { useLocate } from '../hooks/useLocate'
 import type { SibolData } from '../hooks/useSibolData'
 import { api } from '../lib/api'
 import { LEVEL_COLOR } from '../lib/crop'
+import { GEMINI_MODEL, geminiConfigured } from '../lib/gemini'
 import { supabaseConfigured, SUPABASE_URL } from '../lib/supabase'
 import { DEFAULT_SETTINGS, useSettings } from '../settings'
 import type { Reading, Settings } from '../types'
@@ -25,6 +29,7 @@ function ago(ts: number) {
 /* ===================== Dashboard ===================== */
 export function Dashboard({ data }: { data: SibolData }) {
   const m = useCropModel(data)
+  const device = useDevice()
   const r = data.latest
   return (
     <div className="page">
@@ -38,9 +43,18 @@ export function Dashboard({ data }: { data: SibolData }) {
 
       <div className="tiles">
         <Tile label="Soil Moisture" value={r?.soil_moisture != null ? `${r.soil_moisture}%` : '--'} icon={<DropIcon size={22} color="#2f8fd8" />} />
-        <Tile label="Air Temperature" value={r?.temperature != null ? `${r.temperature}°C` : '--'} icon={<ThermoIcon size={22} color="#f0a020" />} />
-        <Tile label="Humidity" value={r?.humidity != null ? `${r.humidity}%` : '--'} icon={<DropIcon size={22} color="#3fb8d6" />} />
-        <Tile label="Soil Sensor Raw" value={r?.soil_raw != null ? String(r.soil_raw) : '--'} />
+        <Tile
+          label="Air Temperature"
+          value={r?.temperature != null ? `${r.temperature}°C` : '--'}
+          sub="DHT11 sensor (live)"
+          icon={<ThermoIcon size={22} color="#f0a020" />}
+        />
+        <Tile label="Humidity" value={r?.humidity != null ? `${r.humidity}%` : '--'} sub="DHT11 sensor (live)" icon={<DropIcon size={22} color="#3fb8d6" />} />
+        <Tile
+          label="Soil Sensor"
+          value={r?.soil_voltage != null ? `${r.soil_voltage.toFixed(2)} V` : r?.soil_raw != null ? String(r.soil_raw) : '--'}
+          sub={r?.soil_raw != null ? `Raw ADC ${r.soil_raw}` : undefined}
+        />
         <Tile
           label="Device"
           value={r?.device_id ?? '—'}
@@ -48,6 +62,10 @@ export function Dashboard({ data }: { data: SibolData }) {
           dot={data.online ? '#3aa335' : '#d93b2b'}
         />
       </div>
+
+      <Card className="pump-card">
+        <PumpControls device={device} />
+      </Card>
 
       <div className="dash-grid">
         <SoilCard m={m} />
@@ -124,10 +142,21 @@ export function DataPage() {
   }, [tick])
 
   const exportCsv = () => {
-    const head = 'timestamp,device_id,soil_moisture,soil_raw,temperature,humidity'
+    const head = 'timestamp,device_id,soil_moisture,soil_raw,soil_voltage,temperature,humidity,pump_on'
     const lines = [...rows]
       .reverse()
-      .map((r) => [new Date(r.ts).toISOString(), r.device_id ?? '', r.soil_moisture ?? '', r.soil_raw ?? '', r.temperature ?? '', r.humidity ?? ''].join(','))
+      .map((r) =>
+        [
+          new Date(r.ts).toISOString(),
+          r.device_id ?? '',
+          r.soil_moisture ?? '',
+          r.soil_raw ?? '',
+          r.soil_voltage ?? '',
+          r.temperature ?? '',
+          r.humidity ?? '',
+          r.pump_on == null ? '' : r.pump_on ? 1 : 0,
+        ].join(','),
+      )
     const blob = new Blob([[head, ...lines].join('\n')], { type: 'text/csv' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -163,6 +192,7 @@ export function DataPage() {
               <th>Raw</th>
               <th>Temp</th>
               <th>Humidity</th>
+              <th>Pump</th>
             </tr>
           </thead>
           <tbody>
@@ -174,11 +204,12 @@ export function DataPage() {
                 <td data-label="Raw">{r.soil_raw ?? '—'}</td>
                 <td data-label="Temp">{r.temperature != null ? `${r.temperature}°C` : '—'}</td>
                 <td data-label="Humidity">{r.humidity != null ? `${r.humidity}%` : '—'}</td>
+                <td data-label="Pump">{r.pump_on == null ? '—' : r.pump_on ? 'ON' : 'OFF'}</td>
               </tr>
             ))}
             {!rows.length && (
               <tr>
-                <td colSpan={6} className="muted center">
+                <td colSpan={7} className="muted center">
                   No readings yet. Power up the ESP32 or run <code>npm run simulate</code>.
                 </td>
               </tr>
@@ -194,6 +225,7 @@ export function DataPage() {
 export function SettingsPage() {
   const { settings, save } = useSettings()
   const [f, setF] = useState<Settings>(settings)
+  const loc = useLocate()
   const [saved, setSaved] = useState(false)
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => {
     setF({ ...f, [k]: v })
@@ -236,6 +268,21 @@ export function SettingsPage() {
 
         <Card>
           <h3 className="card-title">Field location</h3>
+          <div className="locate-row">
+            <button
+              type="button"
+              className="btn"
+              disabled={loc.locating}
+              onClick={async () => {
+                const next = await loc.locate(f)
+                if (next) setF(next)
+              }}
+            >
+              <PinIcon size={16} /> {loc.locating ? 'Locating…' : 'Use my current location'}
+            </button>
+            <span className="muted small">Stand at the field and press — the forecast and map will use this exact spot.</span>
+          </div>
+          {loc.message && <p className={`small locate-msg ${loc.status}`}>{loc.message}</p>}
           <label>
             Location name
             <input value={f.locationName} onChange={(e) => set('locationName', e.target.value)} />
@@ -261,6 +308,14 @@ export function SettingsPage() {
           {numField('staleMinutes', 'Mark ESP32 offline after (minutes)', '1')}
           <p className="muted small">
             The ESP32 inserts rows into the <code>sensor_readings</code> table. Old data can be deleted from the Supabase Table Editor.
+          </p>
+          <p className="small">
+            Gemini AI:{' '}
+            {geminiConfigured ? (
+              <b style={{ color: '#2e8a2a' }}>enabled ({GEMINI_MODEL})</b>
+            ) : (
+              <b style={{ color: '#c62f20' }}>not configured — add VITE_GEMINI_API_KEY to .env</b>
+            )}
           </p>
         </Card>
 

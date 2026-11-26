@@ -1,4 +1,4 @@
-import { FieldMap } from '../components/FieldMap'
+import { CameraFeed } from '../components/CameraFeed'
 import {
   ActionsCard,
   CropInfoCard,
@@ -10,8 +10,11 @@ import {
   StageCard,
   StatCard,
 } from '../components/Widgets'
+import { useAiAdvice } from '../hooks/useAiAdvice'
 import { useCropModel } from '../hooks/useCropModel'
+import { useDevice } from '../hooks/useDevice'
 import type { SibolData } from '../hooks/useSibolData'
+import { toFieldContext } from '../lib/context'
 
 export function SoilCard({ m }: { m: ReturnType<typeof useCropModel> }) {
   const { moisture, s, mStatus } = m
@@ -38,7 +41,7 @@ export function HeatCard({ m }: { m: ReturnType<typeof useCropModel> }) {
   return (
     <StatCard
       title="Forecast Heat"
-      tip="Highest forecast temperature over the next 3 days (Open-Meteo)."
+      tip="Highest FORECAST temperature over the next 3 days (Open-Meteo weather). This is not the sensor reading — the live air temperature from the DHT11 is shown on the camera and the Dashboard."
       icon={<HeatIcon />}
       iconBg="#f0a020"
       value={heat === null ? '--°C' : `${heat}°C`}
@@ -53,6 +56,10 @@ export function HeatCard({ m }: { m: ReturnType<typeof useCropModel> }) {
 
 export function Home({ data }: { data: SibolData }) {
   const m = useCropModel(data)
+  const device = useDevice()
+  const context = toFieldContext(m, data, device.controls)
+  const ai = useAiAdvice(context, data.forecast.length > 0 && data.dbOk)
+
   return (
     <div className="page">
       <h1 className="welcome">Welcome!</h1>
@@ -64,8 +71,8 @@ export function Home({ data }: { data: SibolData }) {
         <div className="g-heat"><HeatCard m={m} /></div>
         <div className="g-stage"><StageCard stage={m.stage} index={m.index} days={m.days} /></div>
         <div className="g-risk"><RiskCard level={m.risk.level} score={m.risk.score} hasData={m.moisture !== null} /></div>
-        <div className="g-map card map-card">
-          <FieldMap lat={m.s.lat} lng={m.s.lng} radius={m.s.fieldRadius} level={m.risk.level} />
+        <div className="g-map card cam-card">
+          <CameraFeed latest={data.latest} device={device} context={context} />
         </div>
         <div className="g-crop">
           <CropInfoCard
@@ -77,7 +84,7 @@ export function Home({ data }: { data: SibolData }) {
         </div>
         <div className="g-trend"><MoistureTrend history={data.history} min={m.s.optimalMin} max={m.s.optimalMax} /></div>
         <div className="g-forecast"><ForecastCard forecast={data.forecast} error={data.weatherError} /></div>
-        <div className="g-actions"><ActionsCard actions={m.actions} /></div>
+        <div className="g-actions"><ActionsCard actions={m.actions} ai={ai} /></div>
       </div>
     </div>
   )

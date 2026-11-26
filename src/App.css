@@ -1047,3 +1047,599 @@ tbody tr:hover {
     content: none;
   }
 }
+
+/* ================= Camera feed (home) ================= */
+.cam-card {
+  padding: 0;
+  overflow: hidden;
+  border: 5px solid #b9c7b4;
+  min-height: 300px;
+  display: flex;
+}
+.cam-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cam {
+  position: relative;
+  flex: 1;
+  min-height: 240px;
+  background: #1a1f1a;
+  overflow: hidden;
+}
+.cam img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+.cam-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #cfd8cf;
+  text-align: center;
+  padding: 16px;
+}
+.cam-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+.cam-empty .muted {
+  color: #9aa59a;
+}
+.cam-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.cam-badge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9a9a9a;
+}
+.cam-badge.live i {
+  background: #ff3b30;
+  animation: cam-pulse 1.4s infinite;
+}
+@keyframes cam-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+.cam-ai {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--green-900);
+  border: 0;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cam-ai:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.cam-chips {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 6px;
+}
+.cam-chips span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+.cam-check {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 44px;
+  max-height: 65%;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.96);
+  border-left: 5px solid #777;
+  border-radius: 10px;
+  padding: 10px 30px 10px 12px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.cam-check.healthy { border-color: #3aa335; }
+.cam-check.watch { border-color: #e8a317; }
+.cam-check.problem,
+.cam-check.error { border-color: #d93b2b; }
+.cam-check p {
+  margin: 4px 0;
+}
+.cam-check ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.cam-check .close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  border: 0;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #555;
+}
+
+/* ================= Water pump controls ================= */
+.pump-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pump-bar.compact {
+  background: #fff;
+  padding: 8px 10px;
+  border-top: 1.5px solid #b9c7b4;
+}
+.pump-card {
+  margin-bottom: 14px;
+}
+.pump-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.pump-state b {
+  font-size: 14px;
+}
+.pump-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #bbb;
+}
+.pump-dot.on {
+  background: #2f8fd8;
+  box-shadow: 0 0 0 4px rgba(47, 143, 216, 0.25);
+  animation: cam-pulse 1.4s infinite;
+}
+.seg {
+  display: inline-flex;
+  border: 1.5px solid var(--green-600);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.seg button {
+  border: 0;
+  background: #fff;
+  color: var(--green-700);
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.seg button + button {
+  border-left: 1.5px solid var(--green-600);
+}
+.seg button.active {
+  background: var(--green-600);
+  color: #fff;
+}
+.seg button.active.on {
+  background: #2f8fd8;
+}
+.seg button.active.off {
+  background: #6b6b6b;
+}
+.seg button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.pump-error {
+  width: 100%;
+  color: #8a1f14;
+  font-size: 12px;
+}
+
+/* ================= AI ================= */
+.actions-card .card-title {
+  flex-wrap: wrap;
+}
+.ai-tag {
+  margin-left: auto;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  color: #4a5bd8;
+  background: #eef0ff;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.ai-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.btn.small {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+@media (max-width: 560px) {
+  .cam-card {
+    min-height: 280px;
+  }
+  .pump-bar .seg {
+    width: 100%;
+  }
+  .pump-bar .seg button {
+    flex: 1;
+  }
+}
+
+/* ================= Use my location ================= */
+.loc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: none;
+  padding: 4px 6px;
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.loc-btn:hover {
+  background: var(--mint);
+}
+.loc-btn:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+.loc-btn.error svg {
+  color: #c62f20;
+}
+.locate-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.locate-msg {
+  margin: 0 0 8px;
+}
+.locate-msg.done {
+  color: #2e8a2a;
+}
+.locate-msg.error {
+  color: #c62f20;
+}
+
+/* ================= Sibol AI chat ================= */
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 84px);
+  height: calc(100dvh - 84px);
+  padding-bottom: 12px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+.chat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.chat-head .lead {
+  margin: 2px 0 0;
+}
+.chat-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chat-tools select {
+  font: inherit;
+  font-size: 14px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1.5px solid var(--green-600);
+  background: #fff;
+  color: var(--green-700);
+}
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--green-600);
+  background: #fff;
+  color: var(--green-700);
+  cursor: pointer;
+}
+.icon-btn.on {
+  background: var(--green-600);
+  color: #fff;
+}
+.icon-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.icon-btn.send {
+  background: var(--green-600);
+  color: #fff;
+  border-color: var(--green-600);
+}
+.icon-btn.mic.on {
+  background: #d93b2b;
+  border-color: #d93b2b;
+  color: #fff;
+  animation: cam-pulse 1.2s infinite;
+}
+
+.chat-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--mint);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.bubble-row {
+  display: flex;
+}
+.bubble-row.user {
+  justify-content: flex-end;
+}
+.bubble {
+  position: relative;
+  max-width: min(80%, 620px);
+  padding: 9px 13px;
+  border-radius: 16px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.bubble.user {
+  background: var(--green-600);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.bubble.model {
+  background: #fff;
+  border: 1px solid #c9d6c5;
+  border-bottom-left-radius: 4px;
+  padding-right: 30px;
+}
+.bubble.error {
+  border-color: #f3b3ab;
+  background: #fdecea;
+  color: #8a1f14;
+}
+.bubble img {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.bubble-speak {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px;
+}
+.bubble.typing {
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+}
+.bubble.typing i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #9aa59a;
+  animation: typing 1s infinite;
+}
+.bubble.typing i:nth-child(2) { animation-delay: 0.15s; }
+.bubble.typing i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typing {
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.5;
+  }
+}
+
+.chat-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-700);
+}
+.chat-note {
+  color: #8a1f14;
+  font-weight: 500;
+}
+.rec-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d93b2b;
+  margin-right: 6px;
+  animation: cam-pulse 1.2s infinite;
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 0 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid var(--green-600);
+  background: #fff;
+  color: var(--green-700);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.chip:disabled {
+  opacity: 0.5;
+}
+.chat-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.chat-input input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 16px; /* stops iOS zoom */
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  outline: none;
+}
+.chat-input input:focus {
+  border-color: var(--green-600);
+}
+.voice-chat-btn {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  border-radius: 999px;
+  border: 0;
+  background: #2f8fd8;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.voice-chat-btn.on {
+  background: #d93b2b;
+}
+.voice-chat-btn:disabled {
+  opacity: 0.6;
+}
+
+/* floating "Ask Sibol AI" button */
+.chat-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px 12px 14px;
+  background: var(--green-600);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+.chat-fab:hover {
+  background: var(--green-700);
+}
+
+@media (max-width: 900px) {
+  .chat-page {
+    height: calc(100vh - 68px);
+    height: calc(100dvh - 68px);
+  }
+}
+@media (max-width: 560px) {
+  .chat-page {
+    padding: 8px 10px 10px;
+  }
+  .chat-head .lead {
+    display: none;
+  }
+  .bubble {
+    max-width: 88%;
+  }
+  .chat-fab span {
+    display: none;
+  }
+  .chat-fab {
+    padding: 14px;
+    right: 14px;
+    bottom: 14px;
+  }
+}

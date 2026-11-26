@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react'
 import logoUrl from '../assets/sibol-wordmark.png'
 import type { Page } from '../types'
+import { useLocate } from '../hooks/useLocate'
 import { useSettings } from '../settings'
-import { CalendarIcon, ChartIcon, DataIcon, GearIcon, HomeIcon, LeafIcon, MapIcon, PinIcon, SproutIcon, UserIcon } from './icons'
+import { CalendarIcon, ChartIcon, ChatIcon, DataIcon, GearIcon, HomeIcon, LeafIcon, MapIcon, PinIcon, SproutIcon, UserIcon } from './icons'
 
 const NAV: { page: Page; label: string; icon: ReactNode }[] = [
   { page: 'home', label: 'Home', icon: <HomeIcon /> },
   { page: 'dashboard', label: 'Dashboard', icon: <ChartIcon /> },
+  { page: 'chat', label: 'Sibol AI', icon: <ChatIcon /> },
   { page: 'maps', label: 'Maps', icon: <MapIcon /> },
   { page: 'data', label: 'Data', icon: <DataIcon /> },
   { page: 'settings', label: 'Settings', icon: <GearIcon /> },
@@ -52,6 +54,7 @@ export function Header({
   onMenu: () => void
 }) {
   const { settings } = useSettings()
+  const loc = useLocate()
   const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'Asia/Manila' })
   const status = !dbOk ? 'Database error' : online ? 'ESP32 online' : 'ESP32 offline'
   const cls = !dbOk ? 'bad' : online ? 'good' : 'warn'
@@ -67,8 +70,15 @@ export function Header({
           {status}
         </span>
         <div className="topbar-item">
-          <PinIcon size={20} />
-          <span>{settings.locationName}</span>
+          <button
+            className={`loc-btn ${loc.status}`}
+            onClick={() => loc.locate()}
+            disabled={loc.locating}
+            title={loc.message || 'Click to use your current location for the forecast'}
+          >
+            <PinIcon size={20} />
+            <span>{loc.locating ? 'Locating…' : settings.locationName}</span>
+          </button>
         </div>
         <div className="divider" />
         <div className="topbar-item">
